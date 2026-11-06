@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Apk Gym</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#14181f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Condensed:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#14181f;--sf:#1d232d;--ln:#2e3744;--tx:#eef0f2;--mu:#8e98a7;--ac:#f2a03d;color-scheme:dark}
+*{box-sizing:border-box;margin:0}
+html{-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+body{background:var(--bg);color:var(--tx);font:16px/1.4 Barlow,system-ui,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+main{max-width:480px;margin:auto;padding:20px 16px 48px}
+h1,h2,.big{font-family:'Barlow Condensed',system-ui,sans-serif;font-weight:800;line-height:1}
+h1{font-size:30px}h2{font-size:22px;margin:32px 0 4px}
+.mu{color:var(--mu);font-weight:400}
+.big{font-size:150px;color:var(--ac);letter-spacing:-4px;margin:16px 0 0}
+button,input{font:inherit;color:inherit}
+button{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:12px 14px;touch-action:manipulation;user-select:none}
+button:active{transform:scale(.97)}
+.pri{background:var(--ac);color:#1f1606;border:0;font-weight:600;width:100%;padding:16px;font-size:18px;margin-top:16px}
+input{background:var(--bg);border:1px solid var(--ln);border-radius:8px;padding:10px;width:100%;font-size:16px}
+.ex{background:var(--sf);border-radius:14px;padding:14px;margin:12px 0}
+.ex header{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:600}
+.row{display:grid;grid-template-columns:60px 1fr 1fr;gap:8px;align-items:center;margin:8px 0}
+.dots{display:flex;justify-content:space-between;margin-top:12px}
+.dot{width:34px;height:34px;border-radius:50%;border:2px solid var(--ln);display:grid;place-items:center;font-size:13px;color:var(--mu)}
+.on{background:var(--ac);border-color:var(--ac);color:#1f1606;font-weight:600}
+.hj{border-color:var(--tx)}
+.lin{display:flex;gap:8px;margin-top:10px}
+.lin>*{flex:1}
+.x{background:none;border:0;color:var(--mu);padding:2px 8px;font-size:22px;flex:none}
+.fim{display:flex;justify-content:space-between;margin-top:28px}
+.fim button{background:none;border:0;color:var(--mu);padding:8px 0}
+</style>
+</head>
+<body>
+<main></main>
+<script type="module">
+import{createClient}from'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/+esm'
+const sb=createClient('https://upthrvblrozwavgiuvza.supabase.co','sb_publishable_TggIErGqxrAapEYGvPUzew_JpUX02ZC')
+const P=[
+['Adaptação','AB',{
+A:['Superior','Crucifixo|pe;Supino Reto|pe;Puxada Frontal Aberta|co;Remada Unilateral|co;Desenvolvimento Sentado|om;Elevação Lateral|om;Tríceps na Polia|tr;Tríceps Francês|tr;Rosca Direta|bi;Prancha|ab'],
+B:['Inferior','Cadeira Adutora|ad;Mesa ou Cadeira Flexora|po;Cadeira Extensora|qu;Agachamento|qu;Leg Press|qu;Panturrilha em Pé|pa;Abdominal Crunch|ab']}],
+['Iniciante','ABCD',{
+A:['Superior 1','Supino Reto|pe;Crucifixo Reto|pe;Desenvolvimento|om;Elevação Lateral|om;Puxada Aberta Pronada|co;Remada Curvada Pronada|co;Rosca Direta Barra W|bi;Tríceps Francês|tr'],
+B:['Inferior 1','Agachamento|qu;Leg Press|qu;Cadeira Extensora|qu;Mesa ou Cadeira Flexora|po;Cadeira Adutora|ad;Panturrilha em Pé|pa;Prancha|ab'],
+C:['Superior 2','Supino Inclinado|pe;Crucifixo Inclinado|pe;Elevação Frontal|om;Crucifixo Inverso|om;Puxada Alta com Triângulo|co;Remada Baixa Supinada|co;Rosca Alternada Banco Inclinado|bi;Tríceps Corda|tr'],
+D:['Inferior 2','Elevação Pélvica|gl;Mesa ou Cadeira Flexora|po;Levantamento Terra Romano|po;Leg Press Unilateral|qu;Panturrilha em Pé|pa;Abdominal Crunch|ab']}],
+['Intermediário','ABCD',{
+A:['Peito, Ombro e Tríceps','Crucifixo Inclinado|pe;Supino Inclinado|pe;Supino Reto|pe;Supino Declinado ou Crossover|pe;Desenvolvimento|om;Elevação Lateral|om;Tríceps Francês|tr;Tríceps Testa|tr;Tríceps Corda|tr;Abdominal no Cabo|ab'],
+B:['Pernas','Agachamento|qu;Avanço ou Afundo|qu;Leg Press|qu;Cadeira Extensora|qu;Mesa ou Cadeira Flexora|po;Cadeira Adutora|ad;Panturrilha no Leg Press|pa'],
+C:['Costas e Bíceps','Puxada Aberta Pronada|co;Remada Curvada|co;Remada Unilateral|co;Remada Baixa Supinada|co;Rosca com Halter Banco 45°|bi;Rosca Scott|bi;Rosca Martelo|bi;Abdominal Crunch|ab'],
+D:['Ombros, Femorais e Panturrilha','Desenvolvimento|om;Elevação Lateral|om;Elevação Frontal Pronada|om;Crucifixo Inverso|om;Elevação Pélvica|gl;Cadeira Flexora|po;Mesa Flexora|po;Stiff|po;Panturrilha em Pé|pa']}],
+['Avançado','ABCDE',{
+A:['Peito e Tríceps','Supino Inclinado|pe;Supino Reto|pe;Crucifixo Reto|pe;Pull Over|pe;Crossover|pe;Elevação Lateral|om;Tríceps Testa|tr;Tríceps Corda|tr;Tríceps Mergulho no Banco|tr'],
+B:['Quadríceps e Panturrilha','Cadeira Abdutora|ad;Cadeira Extensora|qu;Agachamento|qu;Leg Press Unilateral|qu;Terra Sumô|po;Panturrilha em Pé|pa;Panturrilha no Leg Press ou Sentado|pa;Abdominal Crunch|ab;Elevação de Pernas Suspenso|ab'],
+C:['Costas e Bíceps','Puxada Alta Supinada Aberta|co;Puxada Alta com Triângulo|co;Remada Curvada Supinada|co;Remada Baixa com Triângulo|co;Pull Down|co;Crucifixo Inverso|om;Rosca Alternada Banco 45°|bi;Rosca Scott|bi;Rosca Spider|bi'],
+D:['Posteriores e Glúteo','Cadeira Flexora|po;Mesa Flexora|po;Stiff|po;Agachamento Búlgaro|qu;Elevação Pélvica|gl;Panturrilha em Pé|pa;Panturrilha no Leg Press ou Sentado|pa;Abdominal Crunch|ab;Elevação de Pernas Suspenso|ab'],
+E:['Ombros e Braços','Desenvolvimento|om;Elevação Lateral|om;Elevação Frontal|om;Crucifixo Inverso|om;Tríceps Francês|tr;Rosca Direta Barra W|bi;Tríceps Corda|tr;Rosca Scott|bi;Panturrilha no Leg Press|pa;Panturrilha Sentado|pa']}]]
+const app=document.querySelector('main'),v=id=>document.getElementById(id).value.trim()
+const esc=s=>String(s).replace(/[&<>"]/g,c=>'&#'+c.charCodeAt(0)+';')
+const hoje=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10)
+const dia=(s,n)=>{const d=new Date(s+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)}
+const seg=s=>dia(s,-(new Date(s+'T12:00:00Z').getUTCDay()+6)%7)
+const semente=()=>P.flatMap(([,,f],nivel)=>Object.entries(f).flatMap(([ficha,[,s]])=>{const g=new Set();return s.split(';').map((x,ordem)=>{const[nome,m]=x.split('|'),series=g.has(m)?3:4;g.add(m);return{nivel,ficha,ordem,nome,series}})}))
+let me,pf,plano,S,F
+
+function login(){app.innerHTML=`<h1>Apk Gym</h1><p class="mu">Entre na sua conta ou crie uma nova.</p>
+<div style="display:grid;gap:10px;margin-top:24px"><input id="nm" placeholder="Seu nome (só para criar conta)"><input id="em" type="email" placeholder="Email" autocapitalize="none"><input id="se" type="password" placeholder="Senha (mínimo 6 letras)">
+<button class="pri" onclick="entrar()">Entrar</button><button onclick="entrar(1)">Criar conta</button></div>`}
+
+async function entrar(novo){const email=v('em'),password=v('se')
+const{data,error}=novo?await sb.auth.signUp({email,password,options:{data:{nome:v('nm')}}}):await sb.auth.signInWithPassword({email,password})
+if(error)return alert('Não deu para entrar: '+error.message)
+if(!data.session)return alert('Confirme o cadastro no seu email e depois clique em Entrar.')
+carregar(data.user)}
+
+async function carregar(u){me=u
+let{data:p}=await sb.from('perfis').select('*').eq('id',u.id).maybeSingle()
+if(!p){p={id:u.id,nome:u.user_metadata.nome||u.email.split('@')[0],nivel:0,pos:0,feitos:0};await sb.from('perfis').insert(p)}
+pf=p
+let{data:e}=await sb.from('exercicios').select('*')
+if(!e.length)({data:e}=await sb.from('exercicios').insert(semente()).select())
+plano=e;home()}
+
+async function home(){const[ni,r,f]=P[pf.nivel];F=r[pf.pos%r.length]
+const[{data:pe},{data:tr}]=await Promise.all([sb.from('perfis').select('id,nome'),sb.from('treinos').select('user_id,data').order('data',{ascending:false})])
+pe.sort((a,b)=>(b.id==me.id)-(a.id==me.id));const h=hoje(),s0=seg(h)
+const of=pe.map(p=>{const d=new Set(tr.filter(t=>t.user_id==p.id).map(t=>t.data)),q=w=>[0,1,2,3,4,5,6].filter(i=>d.has(dia(w,i))).length
+let n=q(s0)>=4?1:0;for(let w=dia(s0,-7);q(w)>=4;w=dia(w,-7))n++
+return`<div class="ex"><header>${esc(p.nome)}<span class="mu">${n?n+(n>1?' semanas seguidas':' semana'):'Meta: 4 treinos na semana'}</span></header><div class="dots">${'STQQSSD'.split('').map((l,i)=>`<span class="dot ${d.has(dia(s0,i))?'on':''} ${dia(s0,i)==h?'hj':''}">${l}</span>`).join('')}</div></div>`}).join('')
+app.innerHTML=`<h1>Olá, ${esc(pf.nome)}</h1><p class="mu">${ni}${pf.nivel<3?`, treino ${pf.feitos+1} de 5`:''}</p>
+<div class="big">${F}</div><h1>${f[F][0]}</h1>
+<button class="pri" onclick="treino()">Começar treino ${F}</button>
+<h2>Ofensiva</h2><p class="mu">Bolinha cheia é dia treinado nesta semana.</p>${of}
+<div class="fim">${pf.nivel<3?`<button onclick="nivel()">Passar para ${P[pf.nivel+1][0]}</button>`:'<span></span>'}<button onclick="sair()">Sair</button></div>`}
+
+async function nivel(){if(!confirm('Passar para '+P[pf.nivel+1][0]+'?'))return
+Object.assign(pf,{nivel:pf.nivel+1,pos:0,feitos:0});await sb.from('perfis').update({nivel:pf.nivel,pos:0,feitos:0}).eq('id',me.id);home()}
+
+async function sair(){await sb.auth.signOut();login()}
+
+async function treino(){const ex=plano.filter(e=>e.nivel==pf.nivel&&e.ficha==F).sort((a,b)=>a.ordem-b.ordem)
+const{data:u}=await sb.from('ultimo').select('*').in('nome',ex.map(e=>e.nome)),U=Object.fromEntries(u.map(x=>[x.nome,x.series]))
+window.S=S=ex.map(e=>({e,s:[...Array(e.series)].map((_,i)=>({...(U[e.nome]?.[i]||U[e.nome]?.at(-1)||{r:'',p:''})}))}));tela()}
+
+function tela(){app.innerHTML=`<h1>Treino ${F}</h1><p class="mu">${P[pf.nivel][2][F][0]}. Já vem o que você fez da última vez.</p>
+${S.map((x,i)=>`<div class="ex"><header>${esc(x.e.nome)}<button class="x" onclick="tirar(${i})" aria-label="Remover exercício">×</button></header>
+<div class="row mu"><span></span><span>Reps</span><span>Peso (kg)</span></div>
+${x.s.map((s,j)=>`<div class="row"><span class="mu">Série ${j+1}</span><input inputmode="numeric" value="${esc(s.r)}" oninput="S[${i}].s[${j}].r=this.value"><input inputmode="decimal" value="${esc(s.p)}" oninput="S[${i}].s[${j}].p=this.value"></div>`).join('')}
+<div class="lin"><button onclick="serie(${i},-1)">Tirar série</button><button onclick="serie(${i},1)">Mais série</button></div></div>`).join('')}
+<div class="ex"><input id="nv" placeholder="Nome do exercício"><div class="lin"><button onclick="novo()">Adicionar exercício</button></div></div>
+<button class="pri" onclick="concluir()">Concluir treino</button><div class="fim"><button onclick="home()">Voltar sem salvar</button></div>`}
+
+async function serie(i,d){const x=S[i];if(d<0&&x.s.length<2)return
+d>0?x.s.push({...x.s.at(-1)}):x.s.pop();x.e.series=x.s.length
+await sb.from('exercicios').update({series:x.e.series}).eq('id',x.e.id);tela()}
+
+async function tirar(i){if(!confirm('Remover '+S[i].e.nome+' deste treino?'))return
+await sb.from('exercicios').delete().eq('id',S[i].e.id);plano=plano.filter(e=>e!=S[i].e);S.splice(i,1);tela()}
+
+async function novo(){const nome=v('nv');if(!nome)return
+const{data:e}=await sb.from('exercicios').insert({nivel:pf.nivel,ficha:F,ordem:Math.max(-1,...S.map(x=>x.e.ordem))+1,nome,series:3}).select().single()
+plano.push(e);S.push({e,s:[0,1,2].map(()=>({r:'',p:''}))});tela()}
+
+async function concluir(){await sb.from('ultimo').upsert(S.filter(x=>x.s.some(s=>s.r||s.p)).map(x=>({user_id:me.id,nome:x.e.nome,series:x.s})))
+await sb.from('treinos').insert({data:hoje(),nivel:pf.nivel,ficha:F})
+pf.pos++;pf.feitos++;if(pf.nivel<3&&pf.feitos>=5)Object.assign(pf,{nivel:pf.nivel+1,pos:0,feitos:0})
+await sb.from('perfis').update({nivel:pf.nivel,pos:pf.pos,feitos:pf.feitos}).eq('id',me.id);home()}
+
+Object.assign(window,{entrar,treino,nivel,sair,serie,tirar,novo,concluir,home})
+const{data:{session}}=await sb.auth.getSession();session?carregar(session.user):login()
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js')
+</script>
+</body>
+</html>
