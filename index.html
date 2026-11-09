@@ -37,6 +37,16 @@ input:focus{border-color:var(--ac);outline:0}
 .lin>*{flex:1}
 .r1{grid-template-columns:60px 1fr}
 .tt{margin-top:18px}
+.pso{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:16px;font-weight:600}
+.pso>i{font-size:26px;color:var(--mu)}
+.pso div{flex:1}
+.pso small{display:block;color:var(--mu);font-size:14px;font-weight:400}
+.pso b{font:700 26px 'Barlow Condensed',sans-serif}
+.vz{border-color:rgba(61,123,255,.5)}
+.vz>i:first-child{color:var(--ac)}
+.ps{display:grid;grid-template-columns:1fr auto 90px;gap:10px;align-items:baseline;padding:14px 2px;border-bottom:1px solid var(--ln)}
+.ps b{font-weight:600}
+.ps span:last-child{text-align:right}
 .ex header h1{font-size:26px}
 .ex header .x{font-size:22px}
 .dsc{min-height:80dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
@@ -100,7 +110,8 @@ const hoje=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOStri
 const dia=(s,n)=>{const d=new Date(s+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)}
 const seg=s=>dia(s,-(new Date(s+'T12:00:00Z').getUTCDay()+6)%7)
 const semente=()=>P.flatMap(([,,f],nivel)=>Object.entries(f).flatMap(([ficha,[,s]])=>{const g=new Set();return s.split(';').map((x,ordem)=>{const[nome,m]=x.split('|'),series=g.has(m)?3:4;g.add(m);return{nivel,ficha,ordem,nome,series}})}))
-let me,pf,plano,S,F,k=0
+let me,pf,plano,S,F,PS,k=0
+const kg=n=>Number(n).toLocaleString('pt-BR',{maximumFractionDigits:1})
 
 function login(){app.innerHTML=`<h1>Apk Gym</h1><p class="mu">Entre na sua conta ou crie uma nova.</p>
 <div style="display:grid;gap:10px;margin-top:24px"><input id="nm" placeholder="Seu nome (só para criar conta)"><input id="em" type="email" placeholder="Email" autocapitalize="none"><input id="se" type="password" placeholder="Senha (mínimo 6 letras)">
@@ -121,8 +132,8 @@ if(!e.length){await sb.from('exercicios').insert(semente());({data:e}=await sb.f
 plano=e;home()}
 
 async function home(){parar();const[ni,r,f]=P[pf.nivel];F=r[pf.pos%r.length]
-const[{data:pe},{data:tr}]=await Promise.all([sb.from('perfis').select('id,nome'),sb.from('treinos').select('user_id,data').order('data',{ascending:false})])
-pe.sort((a,b)=>(b.id==me.id)-(a.id==me.id));const h=hoje(),s0=seg(h)
+const[{data:pe},{data:tr},{data:ps}]=await Promise.all([sb.from('perfis').select('id,nome'),sb.from('treinos').select('user_id,data').order('data',{ascending:false}),sb.from('pesos').select('*').order('data',{ascending:false})])
+pe.sort((a,b)=>(b.id==me.id)-(a.id==me.id));PS=ps;const h=hoje(),s0=seg(h),ul=ps[0],dd=ul?Math.round((Date.parse(h)-Date.parse(ul.data))/864e5):99,vz=dd>=30
 const of=pe.map((p,k)=>{const d=new Set(tr.filter(t=>t.user_id==p.id).map(t=>t.data))
 const n=[...d].filter(x=>x.startsWith(h.slice(0,7))).length
 return`<div class="ex in" style="animation-delay:${180+k*60}ms"><header>${esc(p.nome)}<span class="st ${n?'':'zero'}"><i class="ph-fill ph-flame"></i>${n} ${n==1?'dia':'dias'} no mês</span></header><div class="dots">${'STQQSSD'.split('').map((l,i)=>`<span class="dot ${d.has(dia(s0,i))?'on':''} ${dia(s0,i)==h?'hj':''}">${l}</span>`).join('')}</div></div>`}).join('')
@@ -130,7 +141,16 @@ app.innerHTML=`<div class="top"><div><small>Olá,</small><h1>${esc(pf.nome)}</h1
 <div class="nv in"><span>${ni}</span><span class="mu">${pf.nivel<3?`treino ${pf.feitos+1} de 5`:'sem limite de treinos'}</span></div>
 ${pf.nivel<3?`<div class="bar in">${[0,1,2,3,4].map(i=>`<i class="${i<pf.feitos?'ok':''}"></i>`).join('')}</div><button class="pul" onclick="nivel()">Pular para ${P[pf.nivel+1][0]}</button>`:''}
 <section class="ex prox in" style="animation-delay:60ms"><div class="cab"><span class="let">${F}</span><div><span class="mu">Próximo treino</span><h1>${f[F][0]}</h1></div></div><button class="pri" onclick="treino()"><i class="ph ph-barbell"></i>Começar treino ${F}</button></section>
+<button class="ex pso in ${vz?'vz':''}" style="animation-delay:90ms" onclick="pesos()"><i class="ph ph-scales"></i><div>${vz?'Hora de se pesar':'Seu peso'}<small>${ul?(vz?`Última pesagem há ${dd} dias`:`Próxima pesagem em ${30-dd} dias`):'Registre seu primeiro peso'}</small></div>${ul?`<b>${kg(ul.peso)} kg</b>`:'<i class="ph ph-caret-right"></i>'}</button>
 <h2 class="in" style="animation-delay:120ms">Ofensiva</h2>${of}`}
+
+function pesos(){app.innerHTML=`<div class="top"><button class="sai" onclick="home()"><i class="ph ph-arrow-left"></i>Voltar</button></div><h1 class="tt">Peso</h1>
+<div class="ex"><input id="pk" inputmode="decimal" placeholder="Peso de hoje (kg)"><button class="pri" onclick="spes(this)">Salvar peso</button></div>
+${PS.map((p,i)=>{const d=PS[i+1]?p.peso-PS[i+1].peso:null;return`<div class="ps"><span class="mu">${p.data.split('-').reverse().join('/')}</span><b>${kg(p.peso)} kg</b><span class="mu">${d==null?'':(d>0?'+':'')+kg(d)+' kg'}</span></div>`}).join('')}`}
+
+async function spes(b){const n=parseFloat(v('pk').replace(',','.'));if(!(n>0))return alert('Digite o peso, por exemplo 80,5')
+b.disabled=true;await sb.from('pesos').upsert({user_id:me.id,data:hoje(),peso:n},{onConflict:'user_id,data'})
+;({data:PS}=await sb.from('pesos').select('*').order('data',{ascending:false}));pesos()}
 
 async function nivel(){if(!confirm('Passar para '+P[pf.nivel+1][0]+'?'))return
 Object.assign(pf,{nivel:pf.nivel+1,pos:0,feitos:0});await sb.from('perfis').update({nivel:pf.nivel,pos:0,feitos:0}).eq('id',me.id);home()}
@@ -179,7 +199,7 @@ await sb.from('treinos').insert({data:hoje(),nivel:pf.nivel,ficha:F})
 pf.pos++;pf.feitos++;if(pf.nivel<3&&pf.feitos>=5)Object.assign(pf,{nivel:pf.nivel+1,pos:0,feitos:0})
 await sb.from('perfis').update({nivel:pf.nivel,pos:pf.pos,feitos:pf.feitos}).eq('id',me.id);home()}
 
-Object.assign(window,{entrar,treino,nivel,sair,serie,tirar,novo,concluir,home,pular,descanso,ant,chk})
+Object.assign(window,{entrar,treino,nivel,sair,serie,tirar,novo,concluir,home,pular,descanso,ant,chk,pesos,spes})
 const{data:{session}}=await sb.auth.getSession();session?carregar(session.user):login()
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js')
 </script>
