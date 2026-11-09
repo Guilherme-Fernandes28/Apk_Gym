@@ -27,6 +27,7 @@ button:active{transform:scale(.97)}
 :focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 .pri{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--ac);color:#fff;border:0;font-weight:600;width:100%;padding:15px;font-size:17px;margin-top:18px;border-radius:14px;box-shadow:0 10px 24px -12px rgba(61,123,255,.8)}
 .pri i{font-size:20px}
+.pri:disabled{opacity:.35;box-shadow:none}
 input{background:var(--bg);border:1px solid var(--ln);border-radius:10px;padding:11px 12px;width:100%;font-size:16px}
 input:focus{border-color:var(--ac);outline:0}
 .ex{background:var(--sf);border:1px solid var(--ln);border-radius:18px;padding:16px;margin:12px 0}
@@ -146,12 +147,13 @@ app.innerHTML=`<div class="top"><button class="sai" onclick="confirm('Sair sem s
 ${x?`<div class="bar" style="margin-top:22px;grid-template-columns:repeat(${S.length},1fr)">${S.map((_,j)=>`<i class="${j<=k?'ok':''}"></i>`).join('')}</div>
 <div class="ex in"><header><h1>${esc(x.e.nome)}</h1><button class="x" onclick="tirar()" aria-label="Remover exercício"><i class="ph ph-trash"></i></button></header>
 <div class="row ${t?'r1':''} mu"><span></span>${t?'<span>Tempo (seg)</span>':'<span>Reps</span><span>Peso (kg)</span>'}</div>
-${x.s.map((s,j)=>`<div class="row ${t?'r1':''}"><span class="mu">Série ${j+1}</span><input inputmode="numeric" value="${esc(s.r)}" oninput="S[${k}].s[${j}].r=this.value">${t?'':`<input inputmode="decimal" value="${esc(s.p)}" oninput="S[${k}].s[${j}].p=this.value">`}</div>`).join('')}
+${x.s.map((s,j)=>`<div class="row ${t?'r1':''}"><span class="mu">Série ${j+1}</span><input inputmode="numeric" value="${esc(s.r)}" oninput="S[${k}].s[${j}].r=this.value;chk()">${t?'':`<input inputmode="decimal" value="${esc(s.p)}" oninput="S[${k}].s[${j}].p=this.value">`}</div>`).join('')}
 <div class="lin"><button onclick="serie(-1)">Tirar série</button><button onclick="serie(1)">Mais série</button></div></div>`:'<p class="mu" style="margin-top:24px">Nenhum exercício neste treino.</p>'}
-<button class="pri" onclick="${u?'concluir(this)':'descanso()'}">${u?'Concluir treino':'Terminei o exercício'}</button>
+<button class="pri" id="tb" ${x&&!ok()?'disabled':''} onclick="${u?'concluir(this)':'descanso()'}">${u?'Concluir treino':'Terminei o exercício'}</button>
 ${k?'<div class="fim"><button onclick="ant()">Exercício anterior</button></div>':''}`}
 
 let tm
+const ok=()=>S[k].s.every(s=>String(s.r).trim()),chk=()=>tb.disabled=!ok()
 const parar=()=>clearInterval(tm)
 function ant(){k--;tela()}
 function pular(){parar();k++;tela()}
@@ -177,7 +179,7 @@ await sb.from('treinos').insert({data:hoje(),nivel:pf.nivel,ficha:F})
 pf.pos++;pf.feitos++;if(pf.nivel<3&&pf.feitos>=5)Object.assign(pf,{nivel:pf.nivel+1,pos:0,feitos:0})
 await sb.from('perfis').update({nivel:pf.nivel,pos:pf.pos,feitos:pf.feitos}).eq('id',me.id);home()}
 
-Object.assign(window,{entrar,treino,nivel,sair,serie,tirar,novo,concluir,home,pular,descanso,ant})
+Object.assign(window,{entrar,treino,nivel,sair,serie,tirar,novo,concluir,home,pular,descanso,ant,chk})
 const{data:{session}}=await sb.auth.getSession();session?carregar(session.user):login()
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js')
 </script>
