@@ -39,27 +39,20 @@ input:focus{border-color:var(--ac);outline:0}
 .fim button{background:none;border:0;color:var(--mu);padding:8px 0}
 .top{display:flex;justify-content:space-between;align-items:center;gap:12px}
 .top small{display:block;color:var(--mu);font-size:15px}
-.av{position:relative}
-.av summary{list-style:none;width:46px;height:46px;border-radius:15px;background:var(--sf2);border:1px solid var(--ln);display:grid;place-items:center;font-weight:600;cursor:pointer}
-.av summary::-webkit-details-marker{display:none}
-.av div{position:absolute;right:0;top:54px;z-index:2;display:grid;min-width:220px;padding:6px;background:var(--sf2);border:1px solid var(--ln);border-radius:16px;box-shadow:0 18px 40px -14px #000}
-.av div button{display:flex;gap:10px;align-items:center;background:none;border:0;padding:12px;text-align:left}
-.av i{font-size:20px;color:var(--mu)}
+.sai{display:flex;gap:6px;align-items:center;background:none;border:0;color:var(--mu);padding:8px 0}.sai i{font-size:20px}.pul{display:block;margin:10px 0 0 auto;background:none;border:0;padding:4px 0;color:var(--mu);font-size:14px}
 .nv{display:flex;justify-content:space-between;align-items:baseline;margin-top:26px;font-weight:600}
 .bar{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px}
 .bar i{height:6px;border-radius:3px;background:var(--sf2)}
 .bar .ok{background:var(--ac)}
-.prox{margin-top:18px;padding:18px;background:linear-gradient(155deg,#1b2335,var(--sf) 65%)}
-.cab{display:flex;gap:14px;align-items:center}
+.prox{margin-top:14px;padding:18px;background:linear-gradient(155deg,#1b2335,var(--sf) 65%)}
+.cab{display:flex;gap:14px;align-items:center}.prox .pri{margin-top:20px}
 .let{flex:none;width:60px;height:60px;border-radius:17px;background:var(--ac);color:#fff;display:grid;place-items:center;font:700 36px 'Barlow Condensed',sans-serif}
-.prox p{margin-top:14px;color:var(--mu);font-size:15px}
 .st{display:flex;align-items:center;gap:5px;color:var(--fo)}
 .st.zero{color:var(--mu)}
 .dots{display:flex;justify-content:space-between;margin-top:14px}
 .dot{width:36px;height:36px;border-radius:50%;background:var(--sf2);display:grid;place-items:center;font-size:13px;color:var(--mu)}
 .dot.on{background:var(--fo);color:#1c0d03;font-weight:600}
 .dot.hj{box-shadow:inset 0 0 0 2px var(--tx)}
-.cnt{margin-top:12px;font-size:14px}
 .in{animation:in .5s var(--e) both}
 @keyframes in{from{opacity:0;transform:translateY(10px)}}
 @media (prefers-reduced-motion:reduce){.in{animation:none}}
@@ -100,9 +93,9 @@ let me,pf,plano,S,F
 
 function login(){app.innerHTML=`<h1>Apk Gym</h1><p class="mu">Entre na sua conta ou crie uma nova.</p>
 <div style="display:grid;gap:10px;margin-top:24px"><input id="nm" placeholder="Seu nome (só para criar conta)"><input id="em" type="email" placeholder="Email" autocapitalize="none"><input id="se" type="password" placeholder="Senha (mínimo 6 letras)">
-<button class="pri" onclick="entrar()">Entrar</button><button onclick="entrar(1)">Criar conta</button></div>`}
+<button class="pri" onclick="entrar(0,this)">Entrar</button><button onclick="entrar(1,this)">Criar conta</button></div>`}
 
-async function entrar(novo){const email=v('em'),password=v('se')
+async function entrar(novo,b){b.disabled=true;setTimeout(()=>b.disabled=false,3000);const email=v('em'),password=v('se')
 const{data,error}=novo?await sb.auth.signUp({email,password,options:{data:{nome:v('nm')}}}):await sb.auth.signInWithPassword({email,password})
 if(error)return alert('Não deu para entrar: '+error.message)
 if(!data.session)return alert('Confirme o cadastro no seu email e depois clique em Entrar.')
@@ -113,20 +106,19 @@ let{data:p}=await sb.from('perfis').select('*').eq('id',u.id).maybeSingle()
 if(!p){p={id:u.id,nome:u.user_metadata.nome||u.email.split('@')[0],nivel:0,pos:0,feitos:0};await sb.from('perfis').insert(p)}
 pf=p
 let{data:e}=await sb.from('exercicios').select('*')
-if(!e.length)({data:e}=await sb.from('exercicios').insert(semente()).select())
+if(!e.length){await sb.from('exercicios').insert(semente());({data:e}=await sb.from('exercicios').select('*'))}
 plano=e;home()}
 
 async function home(){const[ni,r,f]=P[pf.nivel];F=r[pf.pos%r.length]
-const ex=plano.filter(e=>e.nivel==pf.nivel&&e.ficha==F).sort((a,b)=>a.ordem-b.ordem).map(e=>e.nome)
 const[{data:pe},{data:tr}]=await Promise.all([sb.from('perfis').select('id,nome'),sb.from('treinos').select('user_id,data').order('data',{ascending:false})])
 pe.sort((a,b)=>(b.id==me.id)-(a.id==me.id));const h=hoje(),s0=seg(h)
 const of=pe.map((p,k)=>{const d=new Set(tr.filter(t=>t.user_id==p.id).map(t=>t.data)),q=w=>[0,1,2,3,4,5,6].filter(i=>d.has(dia(w,i))).length
 let n=q(s0)>=4?1:0;for(let w=dia(s0,-7);q(w)>=4;w=dia(w,-7))n++
-return`<div class="ex in" style="animation-delay:${180+k*60}ms"><header>${esc(p.nome)}<span class="st ${n?'':'zero'}"><i class="ph-fill ph-flame"></i>${n} ${n==1?'semana':'semanas'}</span></header><div class="dots">${'STQQSSD'.split('').map((l,i)=>`<span class="dot ${d.has(dia(s0,i))?'on':''} ${dia(s0,i)==h?'hj':''}">${l}</span>`).join('')}</div><p class="cnt mu">${q(s0)} de 4 treinos nesta semana</p></div>`}).join('')
-app.innerHTML=`<div class="top"><div><small>Olá,</small><h1>${esc(pf.nome)}</h1></div><details class="av"><summary aria-label="Menu">${esc((pf.nome||'?').trim()[0].toUpperCase())}</summary><div>${pf.nivel<3?`<button onclick="nivel()"><i class="ph ph-skip-forward"></i>Pular para ${P[pf.nivel+1][0]}</button>`:''}<button onclick="sair()"><i class="ph ph-sign-out"></i>Sair</button></div></details></div>
+return`<div class="ex in" style="animation-delay:${180+k*60}ms"><header>${esc(p.nome)}<span class="st ${n?'':'zero'}"><i class="ph-fill ph-flame"></i>${n} ${n==1?'semana':'semanas'}</span></header><div class="dots">${'STQQSSD'.split('').map((l,i)=>`<span class="dot ${d.has(dia(s0,i))?'on':''} ${dia(s0,i)==h?'hj':''}">${l}</span>`).join('')}</div></div>`}).join('')
+app.innerHTML=`<div class="top"><div><small>Olá,</small><h1>${esc(pf.nome)}</h1></div><button class="sai" onclick="sair()"><i class="ph ph-sign-out"></i>Sair</button></div>
 <div class="nv in"><span>${ni}</span><span class="mu">${pf.nivel<3?`treino ${pf.feitos+1} de 5`:'sem limite de treinos'}</span></div>
-${pf.nivel<3?`<div class="bar in">${[0,1,2,3,4].map(i=>`<i class="${i<pf.feitos?'ok':''}"></i>`).join('')}</div>`:''}
-<section class="ex prox in" style="animation-delay:60ms"><div class="cab"><span class="let">${F}</span><div><span class="mu">Próximo treino</span><h1>${f[F][0]}</h1></div></div><p>${ex.length} exercícios: ${esc(ex.slice(0,3).join(', '))}${ex.length>3?` e mais ${ex.length-3}`:''}</p><button class="pri" onclick="treino()"><i class="ph ph-barbell"></i>Começar treino ${F}</button></section>
+${pf.nivel<3?`<div class="bar in">${[0,1,2,3,4].map(i=>`<i class="${i<pf.feitos?'ok':''}"></i>`).join('')}</div><button class="pul" onclick="nivel()">Pular para ${P[pf.nivel+1][0]}</button>`:''}
+<section class="ex prox in" style="animation-delay:60ms"><div class="cab"><span class="let">${F}</span><div><span class="mu">Próximo treino</span><h1>${f[F][0]}</h1></div></div><button class="pri" onclick="treino()"><i class="ph ph-barbell"></i>Começar treino ${F}</button></section>
 <h2 class="in" style="animation-delay:120ms">Ofensiva</h2>${of}`}
 
 async function nivel(){if(!confirm('Passar para '+P[pf.nivel+1][0]+'?'))return
@@ -144,7 +136,7 @@ ${S.map((x,i)=>`<div class="ex"><header>${esc(x.e.nome)}<button class="x" onclic
 ${x.s.map((s,j)=>`<div class="row"><span class="mu">Série ${j+1}</span><input inputmode="numeric" value="${esc(s.r)}" oninput="S[${i}].s[${j}].r=this.value"><input inputmode="decimal" value="${esc(s.p)}" oninput="S[${i}].s[${j}].p=this.value"></div>`).join('')}
 <div class="lin"><button onclick="serie(${i},-1)">Tirar série</button><button onclick="serie(${i},1)">Mais série</button></div></div>`).join('')}
 <div class="ex"><input id="nv" placeholder="Nome do exercício"><div class="lin"><button onclick="novo()">Adicionar exercício</button></div></div>
-<button class="pri" onclick="concluir()">Concluir treino</button><div class="fim"><button onclick="home()">Voltar sem salvar</button></div>`}
+<button class="pri" onclick="concluir(this)">Concluir treino</button><div class="fim"><button onclick="home()">Voltar sem salvar</button></div>`}
 
 async function serie(i,d){const x=S[i];if(d<0&&x.s.length<2)return
 d>0?x.s.push({...x.s.at(-1)}):x.s.pop();x.e.series=x.s.length
@@ -154,10 +146,11 @@ async function tirar(i){if(!confirm('Remover '+S[i].e.nome+' deste treino?'))ret
 await sb.from('exercicios').delete().eq('id',S[i].e.id);plano=plano.filter(e=>e!=S[i].e);S.splice(i,1);tela()}
 
 async function novo(){const nome=v('nv');if(!nome)return
-const{data:e}=await sb.from('exercicios').insert({nivel:pf.nivel,ficha:F,ordem:Math.max(-1,...S.map(x=>x.e.ordem))+1,nome,series:3}).select().single()
+const{data:e,error}=await sb.from('exercicios').insert({nivel:pf.nivel,ficha:F,ordem:Math.max(-1,...S.map(x=>x.e.ordem))+1,nome,series:3}).select().single()
+if(error)return alert('Esse exercício já está neste treino.')
 plano.push(e);S.push({e,s:[0,1,2].map(()=>({r:'',p:''}))});tela()}
 
-async function concluir(){await sb.from('ultimo').upsert(S.filter(x=>x.s.some(s=>s.r||s.p)).map(x=>({user_id:me.id,nome:x.e.nome,series:x.s})))
+async function concluir(b){b.disabled=true;await sb.from('ultimo').upsert(S.filter(x=>x.s.some(s=>s.r||s.p)).map(x=>({user_id:me.id,nome:x.e.nome,series:x.s})))
 await sb.from('treinos').insert({data:hoje(),nivel:pf.nivel,ficha:F})
 pf.pos++;pf.feitos++;if(pf.nivel<3&&pf.feitos>=5)Object.assign(pf,{nivel:pf.nivel+1,pos:0,feitos:0})
 await sb.from('perfis').update({nivel:pf.nivel,pos:pf.pos,feitos:pf.feitos}).eq('id',me.id);home()}
