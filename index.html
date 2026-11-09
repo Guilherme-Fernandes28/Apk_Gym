@@ -17,7 +17,7 @@
 *{box-sizing:border-box;margin:0}
 html{-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
 body{min-height:100dvh;background:radial-gradient(120% 50% at 50% -12%,rgba(61,123,255,.18),transparent 60%) fixed,var(--bg);color:var(--tx);font:16px/1.45 Barlow,system-ui,sans-serif;font-variant-numeric:tabular-nums;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
-main{max-width:480px;margin:auto;padding:22px 18px 120px}
+main{max-width:480px;margin:auto;padding:22px 18px 48px}
 h1,h2{font-family:'Barlow Condensed',system-ui,sans-serif;font-weight:700;line-height:1.05}
 h1{font-size:30px}h2{font-size:22px;margin:32px 0 12px}
 .mu{color:var(--mu);font-weight:400}
@@ -35,11 +35,15 @@ input:focus{border-color:var(--ac);outline:0}
 .lin{display:flex;gap:8px;margin-top:10px}
 .lin>*{flex:1}
 .r1{grid-template-columns:60px 1fr}
-.ok{display:flex;justify-content:center;align-items:center;gap:6px;width:100%;margin-top:8px;color:var(--ac);background:none;border-color:rgba(61,123,255,.4)}
-.feito{opacity:.55}
-.tmr{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));max-width:456px;margin:auto;display:flex;align-items:center;gap:14px;padding:12px 12px 12px 18px;background:var(--sf2);border:1px solid var(--ln);border-radius:18px;box-shadow:0 18px 40px -12px #000;animation:in .3s var(--e) both}
-.tmr b{flex:1;font:700 36px 'Barlow Condensed',sans-serif}
-.tmr button{background:var(--ac);border:0;color:#fff;font-weight:600;padding:12px 22px}
+.tt{margin-top:18px}
+.ex header h1{font-size:26px}
+.ex header .x{font-size:22px}
+.dsc{min-height:80dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.dsc>.mu{font-size:18px}
+.rg{--p:100;width:250px;height:250px;margin:22px 0 30px;border-radius:50%;background:conic-gradient(var(--ac) calc(var(--p)*1%),var(--sf2) 0);display:grid;place-items:center}
+.rg b{width:222px;height:222px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font:700 72px 'Barlow Condensed',sans-serif}
+.dsc h1{margin-top:4px}
+.dsc .pri{max-width:320px;margin-top:28px}
 .x{background:none;border:0;color:var(--mu);padding:4px;font-size:20px;flex:none}
 .fim{display:flex;justify-content:space-between;margin-top:28px}
 .fim button{background:none;border:0;color:var(--mu);padding:8px 0}
@@ -95,7 +99,7 @@ const hoje=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOStri
 const dia=(s,n)=>{const d=new Date(s+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)}
 const seg=s=>dia(s,-(new Date(s+'T12:00:00Z').getUTCDay()+6)%7)
 const semente=()=>P.flatMap(([,,f],nivel)=>Object.entries(f).flatMap(([ficha,[,s]])=>{const g=new Set();return s.split(';').map((x,ordem)=>{const[nome,m]=x.split('|'),series=g.has(m)?3:4;g.add(m);return{nivel,ficha,ordem,nome,series}})}))
-let me,pf,plano,S,F
+let me,pf,plano,S,F,k=0
 
 function login(){app.innerHTML=`<h1>Apk Gym</h1><p class="mu">Entre na sua conta ou crie uma nova.</p>
 <div style="display:grid;gap:10px;margin-top:24px"><input id="nm" placeholder="Seu nome (só para criar conta)"><input id="em" type="email" placeholder="Email" autocapitalize="none"><input id="se" type="password" placeholder="Senha (mínimo 6 letras)">
@@ -115,7 +119,7 @@ let{data:e}=await sb.from('exercicios').select('*')
 if(!e.length){await sb.from('exercicios').insert(semente());({data:e}=await sb.from('exercicios').select('*'))}
 plano=e;home()}
 
-async function home(){pular();const[ni,r,f]=P[pf.nivel];F=r[pf.pos%r.length]
+async function home(){parar();const[ni,r,f]=P[pf.nivel];F=r[pf.pos%r.length]
 const[{data:pe},{data:tr}]=await Promise.all([sb.from('perfis').select('id,nome'),sb.from('treinos').select('user_id,data').order('data',{ascending:false})])
 pe.sort((a,b)=>(b.id==me.id)-(a.id==me.id));const h=hoje(),s0=seg(h)
 const of=pe.map((p,k)=>{const d=new Set(tr.filter(t=>t.user_id==p.id).map(t=>t.data))
@@ -134,32 +138,36 @@ async function sair(){await sb.auth.signOut();login()}
 
 async function treino(){const ex=plano.filter(e=>e.nivel==pf.nivel&&e.ficha==F).sort((a,b)=>a.ordem-b.ordem)
 const{data:u}=await sb.from('ultimo').select('*').in('nome',ex.map(e=>e.nome)),U=Object.fromEntries(u.map(x=>[x.nome,x.series]))
-window.S=S=ex.map(e=>({e,s:[...Array(e.series)].map((_,i)=>({...(U[e.nome]?.[i]||U[e.nome]?.at(-1)||{r:'',p:''})}))}));tela()}
+k=0;window.S=S=ex.map(e=>({e,s:[...Array(e.series)].map((_,i)=>({...(U[e.nome]?.[i]||U[e.nome]?.at(-1)||{r:'',p:''})}))}));tela()}
 
-function tela(){app.innerHTML=`<h1>Treino ${F}</h1><p class="mu">${P[pf.nivel][2][F][0]}</p>
-${S.map((x,i)=>{const t=/prancha/i.test(x.e.nome);return`<div class="ex ${x.ok?'feito':''}"><header>${esc(x.e.nome)}<button class="x" onclick="tirar(${i})" aria-label="Remover exercício"><i class="ph ph-x"></i></button></header>
+function tela(){const x=S[k],t=x&&/prancha/i.test(x.e.nome),u=k>=S.length-1
+app.innerHTML=`<div class="top"><button class="sai" onclick="confirm('Sair sem salvar o treino?')&&home()"><i class="ph ph-arrow-left"></i>Sair</button><button class="sai" onclick="novo()"><i class="ph ph-plus"></i>Exercício</button></div>
+<h1 class="tt">Treino ${F}</h1><p class="mu">${P[pf.nivel][2][F][0]}</p>
+${x?`<div class="bar" style="margin-top:22px;grid-template-columns:repeat(${S.length},1fr)">${S.map((_,j)=>`<i class="${j<=k?'ok':''}"></i>`).join('')}</div>
+<div class="ex in"><header><h1>${esc(x.e.nome)}</h1><button class="x" onclick="tirar()" aria-label="Remover exercício"><i class="ph ph-trash"></i></button></header>
 <div class="row ${t?'r1':''} mu"><span></span>${t?'<span>Tempo (seg)</span>':'<span>Reps</span><span>Peso (kg)</span>'}</div>
-${x.s.map((s,j)=>`<div class="row ${t?'r1':''}"><span class="mu">Série ${j+1}</span><input inputmode="numeric" value="${esc(s.r)}" oninput="S[${i}].s[${j}].r=this.value">${t?'':`<input inputmode="decimal" value="${esc(s.p)}" oninput="S[${i}].s[${j}].p=this.value">`}</div>`).join('')}
-<div class="lin"><button onclick="serie(${i},-1)">Tirar série</button><button onclick="serie(${i},1)">Mais série</button></div>
-<button class="ok" onclick="feito(${i})">${x.ok?'<i class="ph ph-check"></i>Exercício feito':'Terminei o exercício'}</button></div>`}).join('')}
-<div class="ex"><input id="nv" placeholder="Nome do exercício"><div class="lin"><button onclick="novo()">Adicionar exercício</button></div></div>
-<button class="pri" onclick="concluir(this)">Concluir treino</button><div class="fim"><button onclick="home()">Voltar sem salvar</button></div>`}
+${x.s.map((s,j)=>`<div class="row ${t?'r1':''}"><span class="mu">Série ${j+1}</span><input inputmode="numeric" value="${esc(s.r)}" oninput="S[${k}].s[${j}].r=this.value">${t?'':`<input inputmode="decimal" value="${esc(s.p)}" oninput="S[${k}].s[${j}].p=this.value">`}</div>`).join('')}
+<div class="lin"><button onclick="serie(-1)">Tirar série</button><button onclick="serie(1)">Mais série</button></div></div>`:'<p class="mu" style="margin-top:24px">Nenhum exercício neste treino.</p>'}
+<button class="pri" onclick="${u?'concluir(this)':'descanso()'}">${u?'Concluir treino':'Terminei o exercício'}</button>
+${k?'<div class="fim"><button onclick="ant()">Exercício anterior</button></div>':''}`}
 
 let tm
-function feito(i){S[i].ok=!S[i].ok;tela();S[i].ok?descanso():pular()}
-function descanso(){pular();const fim=Date.now()+6e4,el=document.createElement('div');el.className='tmr';el.innerHTML='<span class="mu">Descanso</span><b></b><button onclick="pular()">Pular</button>';document.body.append(el)
-const tick=()=>{const s=Math.max(0,Math.ceil((fim-Date.now())/1e3));el.querySelector('b').textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');if(!s){pular();navigator.vibrate?.(400)}}
-tick();tm=setInterval(tick,250)}
-function pular(){clearInterval(tm);document.querySelector('.tmr')?.remove()}
+const parar=()=>clearInterval(tm)
+function ant(){k--;tela()}
+function pular(){parar();k++;tela()}
+function descanso(){const fim=Date.now()+6e4
+app.innerHTML=`<div class="dsc in"><span class="mu">Descanso</span><div class="rg"><b></b></div><p class="mu">Próximo</p><h1>${esc(S[k+1].e.nome)}</h1><button class="pri" onclick="pular()">Pular</button></div>`
+const rg=app.querySelector('.rg'),b=rg.firstChild,tick=()=>{const s=Math.max(0,Math.ceil((fim-Date.now())/1e3));b.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');rg.style.setProperty('--p',(fim-Date.now())/600);if(!s){navigator.vibrate?.(400);pular()}}
+parar();tick();tm=setInterval(tick,250)}
 
-async function serie(i,d){const x=S[i];if(d<0&&x.s.length<2)return
+async function serie(d){const x=S[k];if(d<0&&x.s.length<2)return
 d>0?x.s.push({...x.s.at(-1)}):x.s.pop();x.e.series=x.s.length
 await sb.from('exercicios').update({series:x.e.series}).eq('id',x.e.id);tela()}
 
-async function tirar(i){if(!confirm('Remover '+S[i].e.nome+' deste treino?'))return
-await sb.from('exercicios').delete().eq('id',S[i].e.id);plano=plano.filter(e=>e!=S[i].e);S.splice(i,1);tela()}
+async function tirar(){if(!confirm('Remover '+S[k].e.nome+' deste treino?'))return
+await sb.from('exercicios').delete().eq('id',S[k].e.id);plano=plano.filter(e=>e!=S[k].e);S.splice(k,1);k=Math.max(0,Math.min(k,S.length-1));tela()}
 
-async function novo(){const nome=v('nv');if(!nome)return
+async function novo(){const nome=prompt('Nome do exercício')?.trim();if(!nome)return
 const{data:e,error}=await sb.from('exercicios').insert({nivel:pf.nivel,ficha:F,ordem:Math.max(-1,...S.map(x=>x.e.ordem))+1,nome,series:3}).select().single()
 if(error)return alert('Esse exercício já está neste treino.')
 plano.push(e);S.push({e,s:[0,1,2].map(()=>({r:'',p:''}))});tela()}
@@ -169,7 +177,7 @@ await sb.from('treinos').insert({data:hoje(),nivel:pf.nivel,ficha:F})
 pf.pos++;pf.feitos++;if(pf.nivel<3&&pf.feitos>=5)Object.assign(pf,{nivel:pf.nivel+1,pos:0,feitos:0})
 await sb.from('perfis').update({nivel:pf.nivel,pos:pf.pos,feitos:pf.feitos}).eq('id',me.id);home()}
 
-Object.assign(window,{entrar,treino,nivel,sair,serie,tirar,novo,concluir,home,feito,pular})
+Object.assign(window,{entrar,treino,nivel,sair,serie,tirar,novo,concluir,home,pular,descanso,ant})
 const{data:{session}}=await sb.auth.getSession();session?carregar(session.user):login()
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js')
 </script>
