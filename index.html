@@ -112,9 +112,9 @@ plano=e;home()}
 async function home(){const[ni,r,f]=P[pf.nivel];F=r[pf.pos%r.length]
 const[{data:pe},{data:tr}]=await Promise.all([sb.from('perfis').select('id,nome'),sb.from('treinos').select('user_id,data').order('data',{ascending:false})])
 pe.sort((a,b)=>(b.id==me.id)-(a.id==me.id));const h=hoje(),s0=seg(h)
-const of=pe.map((p,k)=>{const d=new Set(tr.filter(t=>t.user_id==p.id).map(t=>t.data)),q=w=>[0,1,2,3,4,5,6].filter(i=>d.has(dia(w,i))).length
-let n=q(s0)>=4?1:0;for(let w=dia(s0,-7);q(w)>=4;w=dia(w,-7))n++
-return`<div class="ex in" style="animation-delay:${180+k*60}ms"><header>${esc(p.nome)}<span class="st ${n?'':'zero'}"><i class="ph-fill ph-flame"></i>${n} ${n==1?'semana':'semanas'}</span></header><div class="dots">${'STQQSSD'.split('').map((l,i)=>`<span class="dot ${d.has(dia(s0,i))?'on':''} ${dia(s0,i)==h?'hj':''}">${l}</span>`).join('')}</div></div>`}).join('')
+const of=pe.map((p,k)=>{const d=new Set(tr.filter(t=>t.user_id==p.id).map(t=>t.data))
+const n=[...d].filter(x=>x.startsWith(h.slice(0,7))).length
+return`<div class="ex in" style="animation-delay:${180+k*60}ms"><header>${esc(p.nome)}<span class="st ${n?'':'zero'}"><i class="ph-fill ph-flame"></i>${n} ${n==1?'dia':'dias'} no mês</span></header><div class="dots">${'STQQSSD'.split('').map((l,i)=>`<span class="dot ${d.has(dia(s0,i))?'on':''} ${dia(s0,i)==h?'hj':''}">${l}</span>`).join('')}</div></div>`}).join('')
 app.innerHTML=`<div class="top"><div><small>Olá,</small><h1>${esc(pf.nome)}</h1></div><button class="sai" onclick="sair()"><i class="ph ph-sign-out"></i>Sair</button></div>
 <div class="nv in"><span>${ni}</span><span class="mu">${pf.nivel<3?`treino ${pf.feitos+1} de 5`:'sem limite de treinos'}</span></div>
 ${pf.nivel<3?`<div class="bar in">${[0,1,2,3,4].map(i=>`<i class="${i<pf.feitos?'ok':''}"></i>`).join('')}</div><button class="pul" onclick="nivel()">Pular para ${P[pf.nivel+1][0]}</button>`:''}
