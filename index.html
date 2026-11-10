@@ -37,6 +37,10 @@ input:focus{border-color:var(--ac);outline:0}
 .lin>*{flex:1}
 .r1{grid-template-columns:60px 1fr}
 .tt{margin-top:18px}
+.vb{display:flex;gap:6px;align-items:center;background:none;border:0;color:var(--ac);padding:6px 0;margin-top:2px}
+.vb i{font-size:20px}
+.vi{margin:8px 0 6px;border-radius:12px;overflow:hidden;aspect-ratio:16/9;background:#000}
+.vi iframe{width:100%;height:100%;border:0;display:block}
 .pso{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:16px;font-weight:600}
 .pso>i{font-size:26px;color:var(--mu)}
 .pso div{flex:1}
@@ -110,6 +114,7 @@ const hoje=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOStri
 const dia=(s,n)=>{const d=new Date(s+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)}
 const seg=s=>dia(s,-(new Date(s+'T12:00:00Z').getUTCDay()+6)%7)
 const semente=()=>P.flatMap(([,,f],nivel)=>Object.entries(f).flatMap(([ficha,[,s]])=>{const g=new Set();return s.split(';').map((x,ordem)=>{const[nome,m]=x.split('|'),series=g.has(m)?3:4;g.add(m);return{nivel,ficha,ordem,nome,series}})}))
+const VD={"0":{"Crucifixo":"uQIPgsELvgs","Supino Reto":"_4KDAZ59jkw","Puxada Frontal Aberta":"ftcql3-AMRs","Remada Unilateral":"X7F-Yf-j0ec","Desenvolvimento Sentado":"bFuat5b4QFA","Elevação Lateral":"nxCKW-unul0","Tríceps na Polia":"vzItkqTEq20","Tríceps Francês":"4piO_WPmCCE","Rosca Direta":"rc_7r56M3So","Prancha":"8GFqPC0I0sA","Cadeira Adutora":"C7eVG0crT6c","Mesa ou Cadeira Flexora":"cuWo-F7HDhY","Cadeira Extensora":"BHxNa16VQ7A","Agachamento":"bkDka7InYsY","Leg Press":"B0swveEoTnU","Panturrilha em Pé":"xU9KCMZkoxo","Abdominal Crunch":"27hLFDTivBg"},"1":{"Supino Reto":"XsgR_hm8AWA","Crucifixo Reto":"uQIPgsELvgs","Desenvolvimento":"bFuat5b4QFA","Elevação Lateral":"nxCKW-unul0","Puxada Aberta Pronada":"ftcql3-AMRs","Remada Curvada Pronada":"2Zdzq5I-EuI","Rosca Direta Barra W":"rc_7r56M3So","Tríceps Francês":"4piO_WPmCCE","Agachamento":"bkDka7InYsY","Leg Press":"B0swveEoTnU","Cadeira Extensora":"BHxNa16VQ7A","Mesa ou Cadeira Flexora":"cuWo-F7HDhY","Cadeira Adutora":"C7eVG0crT6c","Panturrilha em Pé":"xU9KCMZkoxo","Prancha":"8GFqPC0I0sA","Supino Inclinado":"lmwCGtNJmw0","Crucifixo Inclinado":"s71yh_Pxvk8","Elevação Frontal":"dmihuuva9KU","Crucifixo Inverso":"8pM2FNouJEc","Puxada Alta com Triângulo":"r7dgDP2N-DM","Remada Baixa Supinada":"YiBlwb32gqo","Rosca Alternada Banco Inclinado":"xcDpo1Ubi5k","Tríceps Corda":"vzItkqTEq20","Elevação Pélvica":"JSRjx5pB5aM","Levantamento Terra Romano":"PCa66EQ6nrw","Leg Press Unilateral":"B0swveEoTnU","Abdominal Crunch":"27hLFDTivBg"},"2":{"Crucifixo Inclinado":"s71yh_Pxvk8","Supino Inclinado":"ZC6OUpnOGiU","Supino Reto":"XsgR_hm8AWA","Supino Declinado ou Crossover":"XpCtQkrGueI","Desenvolvimento":"065aBb6e74U","Elevação Lateral":"CExlWefhPHg","Tríceps Francês":"4piO_WPmCCE","Tríceps Testa":"ERxhR3rxkns","Tríceps Corda":"sgs7VfTbhfk","Abdominal no Cabo":"2RnM0_hx4Y8","Agachamento":"7c_xinLJVZM","Avanço ou Afundo":"waPu1q3VhrM","Leg Press":"B0swveEoTnU","Cadeira Extensora":"BHxNa16VQ7A","Mesa ou Cadeira Flexora":"cuWo-F7HDhY","Cadeira Adutora":"C7eVG0crT6c","Panturrilha no Leg Press":"z-mIKVxAVS4","Puxada Aberta Pronada":"ftcql3-AMRs","Remada Curvada":"KqxuuZ9-4vs","Remada Unilateral":"X7F-Yf-j0ec","Remada Baixa Supinada":"YiBlwb32gqo","Rosca com Halter Banco 45°":"c5Rqh3yOcjc","Rosca Scott":"08htJeRN7vM","Rosca Martelo":"GJsi_Yw1TPo","Abdominal Crunch":"27hLFDTivBg","Elevação Frontal Pronada":"dmihuuva9KU","Crucifixo Inverso":"7EGNBHUpPyo","Elevação Pélvica":"JSRjx5pB5aM","Cadeira Flexora":"cuWo-F7HDhY","Mesa Flexora":"wLKqt8GvBbg","Stiff":"0u7Diq3hdFw","Panturrilha em Pé":"xU9KCMZkoxo"},"3":{"Supino Inclinado":"lmwCGtNJmw0","Supino Reto":"_4KDAZ59jkw","Crucifixo Reto":"uQIPgsELvgs","Pull Over":"tcwMNq8QkEU","Crossover":"tcwMNq8QkEU","Elevação Lateral":"qIq5thMEws0","Tríceps Testa":"ERxhR3rxkns","Tríceps Corda":"sgs7VfTbhfk","Cadeira Abdutora":"_p2pyypglbU","Cadeira Extensora":"BHxNa16VQ7A","Agachamento":"7c_xinLJVZM","Leg Press Unilateral":"RgQKL8EEonQ","Terra Sumô":"SQ480aJMCaE","Panturrilha em Pé":"xU9KCMZkoxo","Panturrilha no Leg Press ou Sentado":"z-mIKVxAVS4","Abdominal Crunch":"27hLFDTivBg","Elevação de Pernas Suspenso":"GQ3sn5J8_9g","Puxada Alta Supinada Aberta":"Uj58KaUkEEQ","Puxada Alta com Triângulo":"WDwg-G7kY3c","Remada Curvada Supinada":"DyCqe7vy_b8","Remada Baixa com Triângulo":"yZtFixy6_ek","Pull Down":"FyDqMjggYMw","Crucifixo Inverso":"7EGNBHUpPyo","Rosca Alternada Banco 45°":"xcDpo1Ubi5k","Rosca Scott":"08htJeRN7vM","Cadeira Flexora":"Mqe6s-ueopo","Mesa Flexora":"zICWI7KY2tk","Stiff":"u-Ha_ZO4Y_0","Agachamento Búlgaro":"2y6yH4m_nIY","Elevação Pélvica":"ecPr0ABLo1c","Desenvolvimento":"bFuat5b4QFA","Elevação Frontal":"8NEu2WkDWkU","Tríceps Francês":"4piO_WPmCCE","Rosca Direta Barra W":"rc_7r56M3So","Panturrilha no Leg Press":"z-mIKVxAVS4"}}
 let me,pf,plano,S,F,PS,k=0
 const kg=n=>Number(n).toLocaleString('pt-BR',{maximumFractionDigits:1})
 
@@ -161,11 +166,11 @@ async function treino(){const ex=plano.filter(e=>e.nivel==pf.nivel&&e.ficha==F).
 const{data:u}=await sb.from('ultimo').select('*').in('nome',ex.map(e=>e.nome)),U=Object.fromEntries(u.map(x=>[x.nome,x.series]))
 k=0;window.S=S=ex.map(e=>({e,s:[...Array(e.series)].map((_,i)=>({...(U[e.nome]?.[i]||U[e.nome]?.at(-1)||{r:'',p:''})}))}));tela()}
 
-function tela(){const x=S[k],t=x&&/prancha/i.test(x.e.nome),u=k>=S.length-1
+function tela(){const x=S[k],t=x&&/prancha/i.test(x.e.nome),u=k>=S.length-1,vd=x&&VD[x.e.nivel]?.[x.e.nome]
 app.innerHTML=`<div class="top"><button class="sai" onclick="confirm('Sair sem salvar o treino?')&&home()"><i class="ph ph-arrow-left"></i>Sair</button><button class="sai" onclick="novo()"><i class="ph ph-plus"></i>Exercício</button></div>
 <h1 class="tt">Treino ${F}</h1><p class="mu">${P[pf.nivel][2][F][0]}</p>
 ${x?`<div class="bar" style="margin-top:22px;grid-template-columns:repeat(${S.length},1fr)">${S.map((_,j)=>`<i class="${j<=k?'ok':''}"></i>`).join('')}</div>
-<div class="ex in"><header><h1>${esc(x.e.nome)}</h1><button class="x" onclick="tirar()" aria-label="Remover exercício"><i class="ph ph-trash"></i></button></header>
+<div class="ex in"><header><h1>${esc(x.e.nome)}</h1><button class="x" onclick="tirar()" aria-label="Remover exercício"><i class="ph ph-trash"></i></button></header>${vd?`<button class="vb" onclick="vid()"><i class="ph ph-${x.v?'x':'play-circle'}"></i>${x.v?'Fechar vídeo':'Ver como faz'}</button>${x.v?`<div class="vi"><iframe src="https://www.youtube-nocookie.com/embed/${vd}?autoplay=1&playsinline=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`:''}`:''}
 <div class="row ${t?'r1':''} mu"><span></span>${t?'<span>Tempo (seg)</span>':'<span>Reps</span><span>Peso (kg)</span>'}</div>
 ${x.s.map((s,j)=>`<div class="row ${t?'r1':''}"><span class="mu">Série ${j+1}</span><input inputmode="numeric" value="${esc(s.r)}" oninput="S[${k}].s[${j}].r=this.value;chk()">${t?'':`<input inputmode="decimal" value="${esc(s.p)}" oninput="S[${k}].s[${j}].p=this.value">`}</div>`).join('')}
 <div class="lin"><button onclick="serie(-1)">Tirar série</button><button onclick="serie(1)">Mais série</button></div></div>`:'<p class="mu" style="margin-top:24px">Nenhum exercício neste treino.</p>'}
@@ -176,6 +181,7 @@ let tm
 const ok=()=>S[k].s.every(s=>String(s.r).trim()),chk=()=>tb.disabled=!ok()
 const parar=()=>clearInterval(tm)
 function ant(){k--;tela()}
+function vid(){S[k].v=!S[k].v;tela()}
 function pular(){parar();k++;tela()}
 function descanso(){const fim=Date.now()+6e4
 app.innerHTML=`<div class="dsc in"><span class="mu">Descanso</span><div class="rg"><b></b></div><p class="mu">Próximo</p><h1>${esc(S[k+1].e.nome)}</h1><button class="pri" onclick="pular()">Pular</button></div>`
@@ -199,7 +205,7 @@ await sb.from('treinos').insert({data:hoje(),nivel:pf.nivel,ficha:F})
 pf.pos++;pf.feitos++;if(pf.nivel<3&&pf.feitos>=5)Object.assign(pf,{nivel:pf.nivel+1,pos:0,feitos:0})
 await sb.from('perfis').update({nivel:pf.nivel,pos:pf.pos,feitos:pf.feitos}).eq('id',me.id);home()}
 
-Object.assign(window,{entrar,treino,nivel,sair,serie,tirar,novo,concluir,home,pular,descanso,ant,chk,pesos,spes})
+Object.assign(window,{entrar,treino,nivel,sair,serie,tirar,novo,concluir,home,pular,descanso,ant,chk,pesos,spes,vid})
 const{data:{session}}=await sb.auth.getSession();session?carregar(session.user):login()
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js')
 </script>
