@@ -37,6 +37,13 @@ input:focus{border-color:var(--ac);outline:0}
 .lin>*{flex:1}
 .r1{grid-template-columns:60px 1fr}
 .tt{margin-top:18px}
+.lk{display:block;margin:14px auto 0;background:none;border:0;padding:4px;color:var(--mu);font-size:15px}
+.tabs{display:flex;gap:8px;margin-top:20px}
+.tabs button{flex:1;padding:10px 0;font:700 22px 'Barlow Condensed',sans-serif}
+.tabs .sel{background:var(--ac);border-color:var(--ac);color:#fff}
+.tag{padding:3px 10px;border:1px solid rgba(61,123,255,.5);border-radius:99px;color:var(--ac);font-size:13px}
+.li{display:grid;grid-template-columns:22px 1fr auto;gap:10px;padding:13px 0;border-top:1px solid var(--ln)}
+.ex header+.li{margin-top:10px}
 .vb{display:flex;gap:6px;align-items:center;background:none;border:0;color:var(--ac);padding:6px 0;margin-top:2px}
 .vb i{font-size:20px}
 .vi{margin:8px 0 6px;border-radius:12px;overflow:hidden;aspect-ratio:16/9;background:#000}
@@ -145,9 +152,15 @@ return`<div class="ex in" style="animation-delay:${180+k*60}ms"><header>${esc(p.
 app.innerHTML=`<div class="top"><div><small>Olá,</small><h1>${esc(pf.nome)}</h1></div><button class="sai" onclick="sair()"><i class="ph ph-sign-out"></i>Sair</button></div>
 <div class="nv in"><span>${ni}</span><span class="mu">${pf.nivel<3?`treino ${pf.feitos+1} de 5`:'sem limite de treinos'}</span></div>
 ${pf.nivel<3?`<div class="bar in">${[0,1,2,3,4].map(i=>`<i class="${i<pf.feitos?'ok':''}"></i>`).join('')}</div><button class="pul" onclick="nivel()">Pular para ${P[pf.nivel+1][0]}</button>`:''}
-<section class="ex prox in" style="animation-delay:60ms"><div class="cab"><span class="let">${F}</span><div><span class="mu">Próximo treino</span><h1>${f[F][0]}</h1></div></div><button class="pri" onclick="treino()"><i class="ph ph-barbell"></i>Começar treino ${F}</button></section>
+<section class="ex prox in" style="animation-delay:60ms"><div class="cab"><span class="let">${F}</span><div><span class="mu">Próximo treino</span><h1>${f[F][0]}</h1></div></div><button class="pri" onclick="treino()"><i class="ph ph-barbell"></i>Começar treino ${F}</button><button class="lk" onclick="fichas()">Ver todos os treinos</button></section>
 <button class="ex pso in ${vz?'vz':''}" style="animation-delay:90ms" onclick="pesos()"><i class="ph ph-scales"></i><div>${vz?'Hora de se pesar':'Seu peso'}<small>${ul?(vz?`Última pesagem há ${dd} dias`:`Próxima pesagem em ${30-dd} dias`):'Registre seu primeiro peso'}</small></div>${ul?`<b>${kg(ul.peso)} kg</b>`:'<i class="ph ph-caret-right"></i>'}</button>
 <h2 class="in" style="animation-delay:120ms">Ofensiva</h2>${of}`}
+
+function fichas(L){const[ni,r,f]=P[pf.nivel];L=L||F
+const ex=plano.filter(e=>e.nivel==pf.nivel&&e.ficha==L).sort((a,b)=>a.ordem-b.ordem)
+app.innerHTML=`<div class="top"><button class="sai" onclick="home()"><i class="ph ph-arrow-left"></i>Voltar</button></div><h1 class="tt">Treinos</h1><p class="mu">${ni}</p>
+<div class="tabs">${[...r].map(l=>`<button class="${l==L?'sel':''}" onclick="fichas('${l}')">${l}</button>`).join('')}</div>
+<div class="ex"><header><h1>${f[L][0]}</h1>${L==F?'<span class="tag">Próximo</span>':''}</header>${ex.map((e,i)=>`<div class="li"><span class="mu">${i+1}</span><span>${esc(e.nome)}</span><span class="mu">${e.series} séries</span></div>`).join('')}</div>`}
 
 function pesos(){app.innerHTML=`<div class="top"><button class="sai" onclick="home()"><i class="ph ph-arrow-left"></i>Voltar</button></div><h1 class="tt">Peso</h1>
 <div class="ex"><input id="pk" inputmode="decimal" placeholder="Peso de hoje (kg)"><button class="pri" onclick="spes(this)">Salvar peso</button></div>
@@ -205,7 +218,7 @@ await sb.from('treinos').insert({data:hoje(),nivel:pf.nivel,ficha:F})
 pf.pos++;pf.feitos++;if(pf.nivel<3&&pf.feitos>=5)Object.assign(pf,{nivel:pf.nivel+1,pos:0,feitos:0})
 await sb.from('perfis').update({nivel:pf.nivel,pos:pf.pos,feitos:pf.feitos}).eq('id',me.id);home()}
 
-Object.assign(window,{entrar,treino,nivel,sair,serie,tirar,novo,concluir,home,pular,descanso,ant,chk,pesos,spes,vid})
+Object.assign(window,{entrar,treino,nivel,sair,serie,tirar,novo,concluir,home,pular,descanso,ant,chk,pesos,spes,vid,fichas})
 const{data:{session}}=await sb.auth.getSession();session?carregar(session.user):login()
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js')
 </script>
