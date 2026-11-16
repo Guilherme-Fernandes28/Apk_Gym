@@ -145,13 +145,32 @@ const kg=n=>Number(n).toLocaleString('pt-BR',{maximumFractionDigits:1})
 
 function login(){app.innerHTML=`<h1>Apk Gym</h1><p class="mu">Entre na sua conta ou crie uma nova.</p>
 <div style="display:grid;gap:10px;margin-top:24px"><input id="nm" placeholder="Seu nome (só para criar conta)"><input id="em" type="email" placeholder="Email" autocapitalize="none"><input id="se" type="password" placeholder="Senha (mínimo 6 letras)">
-<button class="pri" onclick="entrar(0,this)">Entrar</button><button onclick="entrar(1,this)">Criar conta</button></div>`}
+<button class="pri" onclick="entrar(0,this)">Entrar</button><button onclick="entrar(1,this)">Criar conta</button><p id="authStatus" class="mu" style="min-height:20px;text-align:center;margin-top:8px"></p></div>`}
 
-async function entrar(novo,b){b.disabled=true;setTimeout(()=>b.disabled=false,3000);const email=v('em'),password=v('se')
+async function entrar(novo,b){
+const botoes=[...b.parentElement.querySelectorAll('button')],status=document.getElementById('authStatus')
+const textos=botoes.map(x=>x.textContent)
+botoes.forEach(x=>x.disabled=true)
+b.textContent=novo?'Criando sua conta...':'Entrando...'
+if(status)status.textContent=novo?'Criando sua conta, aguarde...':'Entrando no aplicativo...'
+try{
+const email=v('em'),password=v('se')
 const{data,error}=novo?await sb.auth.signUp({email,password,options:{data:{nome:v('nm')}}}):await sb.auth.signInWithPassword({email,password})
-if(error)return alert('Não deu para entrar: '+error.message)
-if(!data.session)return alert('Confirme o cadastro no seu email e depois clique em Entrar.')
-carregar(data.user)}
+if(error)throw error
+if(!data.session){
+if(status)status.textContent=''
+alert('O cadastro foi realizado, mas o Supabase ainda está exigindo confirmação por email.')
+botoes.forEach((x,i)=>{x.disabled=false;x.textContent=textos[i]})
+return
+}
+if(status)status.textContent='Conta pronta! Carregando seu aplicativo...'
+await carregar(data.user)
+}catch(error){
+alert('Não deu para '+(novo?'criar a conta':'entrar')+': '+error.message)
+if(status)status.textContent=''
+botoes.forEach((x,i)=>{x.disabled=false;x.textContent=textos[i]})
+}
+}
 
 async function carregar(u){me=u
 let{data:p}=await sb.from('perfis').select('*').eq('id',u.id).maybeSingle()
