@@ -13,11 +13,11 @@
 <link href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/fill/style.css" rel="stylesheet">
 <style>
-:root{--bg:#0e1116;--sf:#161a21;--sf2:#1e232c;--ln:rgba(255,255,255,.07);--tx:#f2f4f7;--mu:#8b93a1;--ac:#3d7bff;--fo:#ff7a2f;--e:cubic-bezier(.23,1,.32,1);color-scheme:dark}
+:root{--bg:#0e1116;--sf:#161a21;--sf2:#1e232c;--ln:rgba(255,255,255,.07);--tx:#f2f4f7;--mu:#8b93a1;--ac:#3d7bff;--fo:#ff7a2f;--ok:#35c58a;--e:cubic-bezier(.23,1,.32,1);color-scheme:dark}
 *{box-sizing:border-box;margin:0}
 html{-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
 body{min-height:100dvh;background:radial-gradient(120% 50% at 50% -12%,rgba(61,123,255,.18),transparent 60%) fixed,var(--bg);color:var(--tx);font:16px/1.45 Barlow,system-ui,sans-serif;font-variant-numeric:tabular-nums;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
-main{max-width:480px;margin:auto;padding:22px 18px 48px}
+main{max-width:480px;margin:auto;padding:22px 18px 110px}
 h1,h2{font-family:'Barlow Condensed',system-ui,sans-serif;font-weight:700;line-height:1.05}
 h1{font-size:30px}h2{font-size:22px;margin:32px 0 12px}
 .mu{color:var(--mu);font-weight:400}
@@ -37,6 +37,23 @@ input:focus{border-color:var(--ac);outline:0}
 .lin>*{flex:1}
 .r1{grid-template-columns:60px 1fr}
 .tt{margin-top:18px}
+.tab{position:fixed;left:0;right:0;bottom:0;z-index:3;display:flex;justify-content:center;gap:8px;padding:8px 18px calc(8px + env(safe-area-inset-bottom));background:rgba(14,17,22,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--ln)}
+.tab button{flex:1;max-width:222px;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;color:var(--mu);font-size:13px;padding:6px}
+.tab i{font-size:24px}
+.tab .sel{color:var(--tx)}
+.tab .sel i{color:var(--ac)}
+.sts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.sts .ex{margin:0}
+.sts small{display:block;color:var(--mu);font-size:14px}
+.sts b{font:700 34px 'Barlow Condensed',sans-serif}
+.fm{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fm label{display:grid;gap:6px;color:var(--mu);font-size:14px}
+input[type=date]{min-height:44px}
+.cr{grid-template-columns:1fr auto}
+.cr small{display:block;font-size:14px}
+.cr .r{text-align:right}
+.bom{color:var(--ok)}
+.mau{color:var(--fo)}
 .lk{display:block;margin:14px auto 0;background:none;border:0;padding:4px;color:var(--mu);font-size:15px}
 .tabs{display:flex;gap:8px;margin-top:20px}
 .tabs button{flex:1;padding:10px 0;font:700 22px 'Barlow Condensed',sans-serif}
@@ -155,13 +172,28 @@ app.innerHTML=`<div class="top"><div><small>Olá,</small><h1>${esc(pf.nome)}</h1
 ${pf.nivel<3?`<div class="bar in" style="grid-template-columns:repeat(${LIM[pf.nivel]},1fr)">${[...Array(LIM[pf.nivel]).keys()].map(i=>`<i class="${i<pf.feitos?'ok':''}"></i>`).join('')}</div><button class="pul" onclick="nivel()">Pular para ${P[pf.nivel+1][0]}</button>`:''}
 <section class="ex prox in" style="animation-delay:60ms"><div class="cab"><span class="let">${F}</span><div><span class="mu">Próximo treino</span><h1>${f[F][0]}</h1></div></div><button class="pri" onclick="treino()"><i class="ph ph-barbell"></i>Começar treino ${F}</button><button class="lk" onclick="fichas()">Ver todos os treinos</button></section>
 <button class="ex pso in ${vz?'vz':''}" style="animation-delay:90ms" onclick="pesos()"><i class="ph ph-scales"></i><div>${vz?'Hora de se pesar':'Seu peso'}<small>${ul?(vz?`Última pesagem há ${dd} dias`:`Próxima pesagem em ${30-dd} dias`):'Registre seu primeiro peso'}</small></div>${ul?`<b>${kg(ul.peso)} kg</b>`:'<i class="ph ph-caret-right"></i>'}</button>
-<h2 class="in" style="animation-delay:120ms">Ofensiva</h2>${of}`}
+<h2 class="in" style="animation-delay:120ms">Ofensiva</h2>${of}${nav(0)}`}
 
 function fichas(L){const[ni,r,f]=P[pf.nivel];L=L||F
 const ex=plano.filter(e=>e.nivel==pf.nivel&&e.ficha==L).sort((a,b)=>a.ordem-b.ordem)
 app.innerHTML=`<div class="top"><button class="sai" onclick="home()"><i class="ph ph-arrow-left"></i>Voltar</button></div><h1 class="tt">Treinos</h1><p class="mu">${ni}</p>
 <div class="tabs">${[...r].map(l=>`<button class="${l==L?'sel':''}" onclick="fichas('${l}')">${l}</button>`).join('')}</div>
 <div class="ex"><header><h1>${f[L][0]}</h1>${L==F?'<span class="tag">Próximo</span>':''}</header>${ex.map((e,i)=>`<div class="li"><span class="mu">${i+1}</span><span>${esc(e.nome)}</span><span class="mu">${e.series} séries</span></div>`).join('')}</div>`}
+
+const tmp=s=>{s=Math.round(s);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
+const nav=t=>`<nav class="tab"><button class="${t?'':'sel'}" onclick="home()"><i class="ph ph-barbell"></i>Academia</button><button class="${t?'sel':''}" onclick="corridas()"><i class="ph ph-sneaker-move"></i>Corridas</button></nav>`
+
+async function corridas(){parar();const{data:c}=await sb.from('corridas').select('*').order('data',{ascending:false}).order('id',{ascending:false})
+const pc=x=>x.seg/x.km,h=hoje()
+app.innerHTML=`<h1>Corridas</h1>
+${c.length?`<div class="sts"><div class="ex"><small>Melhor pace</small><b>${tmp(Math.min(...c.map(pc)))}</b> <span class="mu">/km</span></div><div class="ex"><small>Mais longa</small><b>${kg(Math.max(...c.map(x=>x.km)))}</b> <span class="mu">km</span></div></div>`:''}
+<div class="ex"><div class="fm"><label>Distância (km)<input id="ck" inputmode="decimal" placeholder="5"></label><label>Data<input id="cd" type="date" value="${h}" max="${h}"></label><label>Minutos<input id="cm" inputmode="numeric" placeholder="25"></label><label>Segundos<input id="cs" inputmode="numeric" placeholder="10"></label></div><button class="pri" onclick="scor(this)">Salvar corrida</button></div>
+${c.map((x,i)=>{const a=c[i+1],d=a?Math.round(pc(x)-pc(a)):0;return`<div class="ps cr"><div><b>${kg(x.km)} km</b><small class="mu">${x.data.split('-').reverse().join('/')}, ${tmp(x.seg)}</small></div><div class="r"><b>${tmp(pc(x))} /km</b>${d?`<small class="${d<0?'bom':'mau'}">${d<0?'-':'+'}${tmp(Math.abs(d))} no pace</small>`:''}</div></div>`}).join('')}
+${nav(1)}`}
+
+async function scor(b){const km=parseFloat(v('ck').replace(',','.')),seg=(+v('cm')||0)*60+(+v('cs')||0),data=v('cd')||hoje()
+if(!(km>0)||!(seg>0))return alert('Coloque a distância e o tempo da corrida.')
+b.disabled=true;await sb.from('corridas').insert({data,km,seg});await sb.from('treinos').insert({data,ficha:'R'});corridas()}
 
 function pesos(){app.innerHTML=`<div class="top"><button class="sai" onclick="home()"><i class="ph ph-arrow-left"></i>Voltar</button></div><h1 class="tt">Peso</h1>
 <div class="ex"><input id="pk" inputmode="decimal" placeholder="Peso de hoje (kg)"><button class="pri" onclick="spes(this)">Salvar peso</button></div>
@@ -219,7 +251,7 @@ await sb.from('treinos').insert({data:hoje(),nivel:pf.nivel,ficha:F})
 pf.pos++;pf.feitos++;if(pf.nivel<3&&pf.feitos>=LIM[pf.nivel])Object.assign(pf,{nivel:pf.nivel+1,pos:0,feitos:0})
 await sb.from('perfis').update({nivel:pf.nivel,pos:pf.pos,feitos:pf.feitos}).eq('id',me.id);home()}
 
-Object.assign(window,{entrar,treino,nivel,sair,serie,tirar,novo,concluir,home,pular,descanso,ant,chk,pesos,spes,vid,fichas})
+Object.assign(window,{entrar,treino,nivel,sair,serie,tirar,novo,concluir,home,pular,descanso,ant,chk,pesos,spes,vid,fichas,corridas,scor})
 const{data:{session}}=await sb.auth.getSession();session?carregar(session.user):login()
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js')
 </script>
