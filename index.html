@@ -54,7 +54,8 @@ input[type=date]{min-height:44px}
 .cr .r{text-align:right}
 .bom{color:var(--ok)}
 .mau{color:var(--fo)}
-.lk{display:block;margin:14px auto 0;background:none;border:0;padding:4px;color:var(--mu);font-size:15px}
+.lks{display:flex;justify-content:space-between;margin-top:14px}
+.lk{display:block;margin:0;background:none;border:0;padding:4px;color:var(--mu);font-size:15px}
 .tabs{display:flex;gap:8px;margin-top:20px}
 .tabs button{flex:1;padding:10px 0;font:700 22px 'Barlow Condensed',sans-serif}
 .tabs .sel{background:var(--ac);border-color:var(--ac);color:#fff}
@@ -145,32 +146,15 @@ const kg=n=>Number(n).toLocaleString('pt-BR',{maximumFractionDigits:1})
 
 function login(){app.innerHTML=`<h1>Apk Gym</h1><p class="mu">Entre na sua conta ou crie uma nova.</p>
 <div style="display:grid;gap:10px;margin-top:24px"><input id="nm" placeholder="Seu nome (só para criar conta)"><input id="em" type="email" placeholder="Email" autocapitalize="none"><input id="se" type="password" placeholder="Senha (mínimo 6 letras)">
-<button class="pri" onclick="entrar(0,this)">Entrar</button><button onclick="entrar(1,this)">Criar conta</button><p id="authStatus" class="mu" style="min-height:20px;text-align:center;margin-top:8px"></p></div>`}
+<button class="pri" onclick="entrar(0,this)">Entrar</button><button onclick="entrar(1,this)">Criar conta</button></div>`}
 
-async function entrar(novo,b){
-const botoes=[...b.parentElement.querySelectorAll('button')],status=document.getElementById('authStatus')
-const textos=botoes.map(x=>x.textContent)
-botoes.forEach(x=>x.disabled=true)
-b.textContent=novo?'Criando sua conta...':'Entrando...'
-if(status)status.textContent=novo?'Criando sua conta, aguarde...':'Entrando no aplicativo...'
-try{
-const email=v('em'),password=v('se')
+async function entrar(novo,b){const email=v('em'),password=v('se')
+if(!email||!password||novo&&!v('nm'))return alert(novo?'Preencha nome, email e senha para criar a conta.':'Preencha o email e a senha.')
+b.disabled=true;setTimeout(()=>b.disabled=false,3000)
 const{data,error}=novo?await sb.auth.signUp({email,password,options:{data:{nome:v('nm')}}}):await sb.auth.signInWithPassword({email,password})
-if(error)throw error
-if(!data.session){
-if(status)status.textContent=''
-alert('O cadastro foi realizado, mas o Supabase ainda está exigindo confirmação por email.')
-botoes.forEach((x,i)=>{x.disabled=false;x.textContent=textos[i]})
-return
-}
-if(status)status.textContent='Conta pronta! Carregando seu aplicativo...'
-await carregar(data.user)
-}catch(error){
-alert('Não deu para '+(novo?'criar a conta':'entrar')+': '+error.message)
-if(status)status.textContent=''
-botoes.forEach((x,i)=>{x.disabled=false;x.textContent=textos[i]})
-}
-}
+if(error)return alert({invalid_credentials:'Email ou senha errados.',user_already_exists:'Esse email já tem conta. Toque em Entrar.',weak_password:'A senha precisa ter pelo menos 6 letras ou números.',email_address_invalid:'Esse email não é válido.'}[error.code]||'Não deu para entrar: '+error.message)
+if(!data.session)return alert('Confirme o cadastro no seu email e depois clique em Entrar.')
+carregar(data.user)}
 
 async function carregar(u){me=u
 let{data:p}=await sb.from('perfis').select('*').eq('id',u.id).maybeSingle()
@@ -178,7 +162,10 @@ if(!p){p={id:u.id,nome:u.user_metadata.nome||u.email.split('@')[0],nivel:0,pos:0
 pf=p
 let{data:e}=await sb.from('exercicios').select('*')
 if(!e.length){await sb.from('exercicios').insert(semente());({data:e}=await sb.from('exercicios').select('*'))}
-plano=e;home()}
+plano=e
+const t=JSON.parse(localStorage.tr||'null'),r=P[pf.nivel][1];F=r[pf.pos%r.length]
+if(t&&t.u==me.id&&t.n==pf.nivel&&t.F==F&&t.S.length){window.S=S=t.S;S.forEach(x=>x.e=plano.find(e=>e.id==x.e.id)||x.e);k=t.k;return t.fim>Date.now()?descanso(t.fim):t.fim?pular():tela()}
+home()}
 
 async function home(){parar();const[ni,r,f]=P[pf.nivel];F=r[pf.pos%r.length]
 const[{data:pe},{data:tr},{data:ps}]=await Promise.all([sb.from('perfis').select('id,nome'),sb.from('treinos').select('user_id,data').order('data',{ascending:false}),sb.from('pesos').select('*').order('data',{ascending:false})])
@@ -189,7 +176,7 @@ return`<div class="ex in" style="animation-delay:${180+k*60}ms"><header>${esc(p.
 app.innerHTML=`<div class="top"><div><small>Olá,</small><h1>${esc(pf.nome)}</h1></div><button class="sai" onclick="sair()"><i class="ph ph-sign-out"></i>Sair</button></div>
 <div class="nv in"><span>${ni}</span><span class="mu">${pf.nivel<3?`treino ${pf.feitos+1} de ${LIM[pf.nivel]}`:'sem limite de treinos'}</span></div>
 ${pf.nivel<3?`<div class="bar in" style="grid-template-columns:repeat(${LIM[pf.nivel]},1fr)">${[...Array(LIM[pf.nivel]).keys()].map(i=>`<i class="${i<pf.feitos?'ok':''}"></i>`).join('')}</div><button class="pul" onclick="nivel()">Pular para ${P[pf.nivel+1][0]}</button>`:''}
-<section class="ex prox in" style="animation-delay:60ms"><div class="cab"><span class="let">${F}</span><div><span class="mu">Próximo treino</span><h1>${f[F][0]}</h1></div></div><button class="pri" onclick="treino()"><i class="ph ph-barbell"></i>Começar treino ${F}</button><button class="lk" onclick="fichas()">Ver todos os treinos</button></section>
+<section class="ex prox in" style="animation-delay:60ms"><div class="cab"><span class="let">${F}</span><div><span class="mu">Próximo treino</span><h1>${f[F][0]}</h1></div></div><button class="pri" onclick="treino()"><i class="ph ph-barbell"></i>Começar treino ${F}</button><div class="lks"><button class="lk" onclick="fichas()">Ver todos os treinos</button><button class="lk" onclick="feito()">Já fiz esse treino</button></div></section>
 <button class="ex pso in ${vz?'vz':''}" style="animation-delay:90ms" onclick="pesos()"><i class="ph ph-scales"></i><div>${vz?'Hora de se pesar':'Seu peso'}<small>${ul?(vz?`Última pesagem há ${dd} dias`:`Próxima pesagem em ${30-dd} dias`):'Registre seu primeiro peso'}</small></div>${ul?`<b>${kg(ul.peso)} kg</b>`:'<i class="ph ph-caret-right"></i>'}</button>
 <h2 class="in" style="animation-delay:120ms">Ofensiva</h2>${of}${nav(0)}`}
 
@@ -200,7 +187,7 @@ app.innerHTML=`<div class="top"><button class="sai" onclick="home()"><i class="p
 <div class="ex"><header><h1>${f[L][0]}</h1>${L==F?'<span class="tag">Próximo</span>':''}</header>${ex.map((e,i)=>`<div class="li"><span class="mu">${i+1}</span><span>${esc(e.nome)}</span><span class="mu">${e.series} séries</span></div>`).join('')}</div>`}
 
 const tmp=s=>{s=Math.round(s);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
-const nav=t=>`<nav class="tab"><button class="${t?'':'sel'}" onclick="home()"><i class="ph ph-barbell"></i>Academia</button><button class="${t?'sel':''}" onclick="corridas()"><i class="ph ph-sneaker-move"></i>Corridas</button></nav>`
+const nav=t=>`<nav class="tab"><button class="${t?'':'sel'}" onclick="home()"><i class="ph ph-barbell"></i>Academia</button><button class="${t==1?'sel':''}" onclick="corridas()"><i class="ph ph-sneaker-move"></i>Corridas</button><button class="${t==2?'sel':''}" onclick="ativ()"><i class="ph ph-soccer-ball"></i>Atividades</button></nav>`
 
 async function corridas(){parar();const{data:c}=await sb.from('corridas').select('*').order('data',{ascending:false}).order('id',{ascending:false})
 const pc=x=>x.seg/x.km,h=hoje()
@@ -209,6 +196,15 @@ ${c.length?`<div class="sts"><div class="ex"><small>Melhor pace</small><b>${tmp(
 <div class="ex"><div class="fm"><label>Distância (km)<input id="ck" inputmode="decimal" placeholder="5"></label><label>Data<input id="cd" type="date" value="${h}" max="${h}"></label><label>Minutos<input id="cm" inputmode="numeric" placeholder="25"></label><label>Segundos<input id="cs" inputmode="numeric" placeholder="10"></label></div><button class="pri" onclick="scor(this)">Salvar corrida</button></div>
 ${c.map((x,i)=>{const a=c[i+1],d=a?Math.round(pc(x)-pc(a)):0;return`<div class="ps cr"><div><b>${kg(x.km)} km</b><small class="mu">${x.data.split('-').reverse().join('/')}, ${tmp(x.seg)}</small></div><div class="r"><b>${tmp(pc(x))} /km</b>${d?`<small class="${d<0?'bom':'mau'}">${d<0?'-':'+'}${tmp(Math.abs(d))} no pace</small>`:''}</div></div>`}).join('')}
 ${nav(1)}`}
+
+async function ativ(){parar();const{data:a}=await sb.from('treinos').select('id,data,atividade').eq('user_id',me.id).eq('ficha','X').order('data',{ascending:false}),h=hoje()
+app.innerHTML=`<h1>Atividades</h1>
+<div class="ex" style="margin-top:16px"><div class="fm"><label>Atividade<input id="an" list="al" placeholder="Futebol"></label><label>Data<input id="ad" type="date" value="${h}" max="${h}"></label></div><datalist id="al">${[...new Set(['Futebol',...a.map(x=>x.atividade)])].map(x=>`<option value="${esc(x)}">`).join('')}</datalist><button class="pri" onclick="sati(this)">Salvar atividade</button></div>
+${a.map(x=>`<div class="ps cr"><b>${esc(x.atividade)}</b><span class="mu">${x.data.split('-').reverse().join('/')}</span></div>`).join('')}
+${nav(2)}`}
+
+async function sati(b){const atividade=v('an'),data=v('ad')||hoje();if(!atividade)return alert('Escreva qual atividade você fez.')
+b.disabled=true;await sb.from('treinos').insert({data,ficha:'X',atividade});ativ()}
 
 async function scor(b){const km=parseFloat(v('ck').replace(',','.')),seg=(+v('cm')||0)*60+(+v('cs')||0),data=v('cd')||hoje()
 if(!(km>0)||!(seg>0))return alert('Coloque a distância e o tempo da corrida.')
@@ -225,30 +221,33 @@ b.disabled=true;await sb.from('pesos').upsert({user_id:me.id,data:hoje(),peso:n}
 async function nivel(){if(!confirm('Passar para '+P[pf.nivel+1][0]+'?'))return
 Object.assign(pf,{nivel:pf.nivel+1,pos:0,feitos:0});await sb.from('perfis').update({nivel:pf.nivel,pos:0,feitos:0}).eq('id',me.id);home()}
 
-async function sair(){await sb.auth.signOut();login()}
+async function sair(){fora();await sb.auth.signOut();login()}
 
 async function treino(){const ex=plano.filter(e=>e.nivel==pf.nivel&&e.ficha==F).sort((a,b)=>a.ordem-b.ordem)
 const{data:u}=await sb.from('ultimo').select('*').in('nome',ex.map(e=>e.nome)),U=Object.fromEntries(u.map(x=>[x.nome,x.series]))
 k=0;window.S=S=ex.map(e=>({e,s:[...Array(e.series)].map((_,i)=>({...(U[e.nome]?.[i]||U[e.nome]?.at(-1)||{r:'',p:''})}))}));tela()}
 
-function tela(){const x=S[k],t=x&&/prancha/i.test(x.e.nome),u=k>=S.length-1,vd=x&&VD[x.e.nivel]?.[x.e.nome]
-app.innerHTML=`<div class="top"><button class="sai" onclick="confirm('Sair sem salvar o treino?')&&home()"><i class="ph ph-arrow-left"></i>Sair</button><button class="sai" onclick="novo()"><i class="ph ph-plus"></i>Exercício</button></div>
+function tela(){FIM=0;sv();const x=S[k],t=x&&/prancha/i.test(x.e.nome),u=k>=S.length-1,vd=x&&VD[x.e.nivel]?.[x.e.nome]
+app.innerHTML=`<div class="top"><button class="sai" onclick="confirm('Sair sem salvar o treino?')&&(fora(),home())"><i class="ph ph-arrow-left"></i>Sair</button><button class="sai" onclick="novo()"><i class="ph ph-plus"></i>Exercício</button></div>
 <h1 class="tt">Treino ${F}</h1><p class="mu">${P[pf.nivel][2][F][0]}</p>
 ${x?`<div class="bar" style="margin-top:22px;grid-template-columns:repeat(${S.length},1fr)">${S.map((_,j)=>`<i class="${j<=k?'ok':''}"></i>`).join('')}</div>
 <div class="ex in"><header><h1>${esc(x.e.nome)}</h1><button class="x" onclick="tirar()" aria-label="Remover exercício"><i class="ph ph-trash"></i></button></header>${vd?`<button class="vb" onclick="vid()"><i class="ph ph-${x.v?'x':'play-circle'}"></i>${x.v?'Fechar vídeo':'Ver como faz'}</button>${x.v?`<div class="vi"><iframe src="https://www.youtube-nocookie.com/embed/${vd}?autoplay=1&playsinline=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`:''}`:''}
 <div class="row ${t?'r1':''} mu"><span></span>${t?'<span>Tempo (seg)</span>':'<span>Reps</span><span>Peso (kg)</span>'}</div>
-${x.s.map((s,j)=>`<div class="row ${t?'r1':''}"><span class="mu">Série ${j+1}</span><input inputmode="numeric" value="${esc(s.r)}" oninput="S[${k}].s[${j}].r=this.value;chk()">${t?'':`<input inputmode="decimal" value="${esc(s.p)}" oninput="S[${k}].s[${j}].p=this.value">`}</div>`).join('')}
+${x.s.map((s,j)=>`<div class="row ${t?'r1':''}"><span class="mu">Série ${j+1}</span><input inputmode="numeric" value="${esc(s.r)}" oninput="S[${k}].s[${j}].r=this.value;chk()">${t?'':`<input inputmode="decimal" value="${esc(s.p)}" oninput="S[${k}].s[${j}].p=this.value;sv()">`}</div>`).join('')}
 <div class="lin"><button onclick="serie(-1)">Tirar série</button><button onclick="serie(1)">Mais série</button></div></div>`:'<p class="mu" style="margin-top:24px">Nenhum exercício neste treino.</p>'}
-<button class="pri" id="tb" ${x&&!ok()?'disabled':''} onclick="${u?'concluir(this)':'descanso()'}">${u?'Concluir treino':'Terminei o exercício'}</button>
-${k?'<div class="fim"><button onclick="ant()">Exercício anterior</button></div>':''}`}
+<button class="pri" id="tb" ${x&&!u&&!ok()?'disabled':''} onclick="${u?'concluir(this)':'descanso()'}">${u?'Concluir treino':'Terminei o exercício'}</button>
+<div class="fim">${k?'<button onclick="ant()">Exercício anterior</button>':'<span></span>'}${x&&!u?'<button onclick="prox()">Pular exercício</button>':''}</div>`}
 
 let tm
-const ok=()=>S[k].s.every(s=>String(s.r).trim()),chk=()=>tb.disabled=!ok()
+let FIM=0
+const sv=()=>localStorage.tr=JSON.stringify({u:me.id,n:pf.nivel,F,k,S,fim:FIM}),fora=()=>localStorage.removeItem('tr')
+const ok=()=>S[k].s.every(s=>String(s.r).trim()),chk=()=>{tb.disabled=!ok()&&k<S.length-1;sv()}
 const parar=()=>clearInterval(tm)
 function ant(){k--;tela()}
+function prox(){k++;tela()}
 function vid(){S[k].v=!S[k].v;tela()}
 function pular(){parar();k++;tela()}
-function descanso(){const fim=Date.now()+6e4
+function descanso(fim=Date.now()+6e4){FIM=fim;sv()
 app.innerHTML=`<div class="dsc in"><span class="mu">Descanso</span><div class="rg"><b></b></div><p class="mu">Próximo</p><h1>${esc(S[k+1].e.nome)}</h1><button class="pri" onclick="pular()">Pular</button></div>`
 const rg=app.querySelector('.rg'),b=rg.firstChild,tick=()=>{const s=Math.max(0,Math.ceil((fim-Date.now())/1e3));b.textContent=Math.floor(s/60)+':'+String(s%60).padStart(2,'0');rg.style.setProperty('--p',(fim-Date.now())/600);if(!s){navigator.vibrate?.(400);pular()}}
 parar();tick();tm=setInterval(tick,250)}
@@ -265,12 +264,16 @@ const{data:e,error}=await sb.from('exercicios').insert({nivel:pf.nivel,ficha:F,o
 if(error)return alert('Esse exercício já está neste treino.')
 plano.push(e);S.push({e,s:[0,1,2].map(()=>({r:'',p:''}))});tela()}
 
-async function concluir(b){b.disabled=true;await sb.from('ultimo').upsert(S.filter(x=>x.s.some(s=>s.r||s.p)).map(x=>({user_id:me.id,nome:x.e.nome,series:x.s})))
-await sb.from('treinos').insert({data:hoje(),nivel:pf.nivel,ficha:F})
-pf.pos++;pf.feitos++;if(pf.nivel<3&&pf.feitos>=LIM[pf.nivel])Object.assign(pf,{nivel:pf.nivel+1,pos:0,feitos:0})
+async function feito(){if(!confirm('Marcar o treino '+F+' como feito, sem preencher as séries?'))return
+await sb.from('treinos').insert({data:hoje(),nivel:pf.nivel,ficha:F});fora();avanca()}
+
+async function avanca(){pf.pos++;pf.feitos++;if(pf.nivel<3&&pf.feitos>=LIM[pf.nivel])Object.assign(pf,{nivel:pf.nivel+1,pos:0,feitos:0})
 await sb.from('perfis').update({nivel:pf.nivel,pos:pf.pos,feitos:pf.feitos}).eq('id',me.id);home()}
 
-Object.assign(window,{entrar,treino,nivel,sair,serie,tirar,novo,concluir,home,pular,descanso,ant,chk,pesos,spes,vid,fichas,corridas,scor})
+async function concluir(b){b.disabled=true;fora();await sb.from('ultimo').upsert(S.filter(x=>x.s.some(s=>s.r||s.p)).map(x=>({user_id:me.id,nome:x.e.nome,series:x.s})))
+await sb.from('treinos').insert({data:hoje(),nivel:pf.nivel,ficha:F});avanca()}
+
+Object.assign(window,{entrar,treino,nivel,sair,serie,tirar,novo,concluir,home,pular,descanso,ant,chk,pesos,spes,vid,fichas,corridas,scor,prox,feito,ativ,sati,sv,fora})
 const{data:{session}}=await sb.auth.getSession();session?carregar(session.user):login()
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js')
 </script>
